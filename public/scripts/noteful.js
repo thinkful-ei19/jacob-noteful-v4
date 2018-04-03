@@ -16,10 +16,10 @@ const noteful = (function () {
   }
 
   function handleErrors(err) {
-    // if (err.status === 401) {
-    // store.authorized = false;
-    // noteful.render();
-    // }
+    if (err.status === 401) {
+      store.authorized = false;
+      noteful.render();
+    }
     showFailureMessage(err.responseJSON.message);
   }
 
@@ -383,6 +383,7 @@ const noteful = (function () {
         .catch(handleErrors);
     });
   }
+  
 
   function handleLoginSubmit() {
     $('.js-login-form').on('submit', event => {
@@ -396,6 +397,7 @@ const noteful = (function () {
 
       api.create('/api/login', loginUser)
         .then(response => {
+          store.authToken = response.authToken;
           store.authorized = true;
           loginForm[0].reset();
 
