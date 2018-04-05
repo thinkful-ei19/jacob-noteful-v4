@@ -7,17 +7,69 @@ const mongoose = require('mongoose');
 
 const User = require('../models/user');
 
+/*const passport = require('passport');*/
+/*const authjwt = passport.authenticate('jwt', { session: false, failWithError: true });*/
+
+router.get('/users', /*authjwt,*/ (req, res, next) => {
+
+  User.find()
+    .sort('username')
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+
 // POST ENDPOINT TO CREATE A USER
 router.post('/users', (req, res, next) => {
   const { fullname, username, password } = req.body;
 
-  if (!username) return next(new Error('username required'));
+  if (username === '') {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'Must be atleast 1 characters long',
+    });
+  }
 
-  if (!password) return next(new Error('password required'));
+  if (!username) {
 
-  if (typeof username !== 'string') return next(new Error('username not a string'));
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'username required',
+      location: 'username'
+    });
+  }
 
-  if (typeof password !== 'string') return next(new Error('password not a string'));
+  if (!password) {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'password required',
+      location: 'password'
+    });
+  }
+
+  if (typeof username !== 'string') {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'expecting string for username',
+      location: 'username'
+    });
+  }
+
+  if (typeof password !== 'string') {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'expecting string for password',
+      location: 'password'
+    });
+  }
   
   const explicityTrimmedFields = ['username', 'password'];
   const nonTrimmedField = explicityTrimmedFields.find(
@@ -69,7 +121,7 @@ router.post('/users', (req, res, next) => {
       const newUser = {
         username,
         password: digest,
-        fullname
+        fullname: fullname.trim()
       };
       return User.create(newUser)
         .then(result => {

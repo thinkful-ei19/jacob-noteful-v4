@@ -10,7 +10,8 @@ const Note = require('../models/note');
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/tags', (req, res, next) => {
-  Tag.find()
+  const userId = req.user.id;
+  Tag.find({userId})
     .sort('name')
     .then(results => {
       res.json(results);
@@ -23,14 +24,14 @@ router.get('/tags', (req, res, next) => {
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/tags/:id', (req, res, next) => {
   const { id } = req.params;
-
+  const userId = req.user.id;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     const err = new Error('The `id` is not valid');
     err.status = 400;
     return next(err);
   }
 
-  Tag.findById(id)
+  Tag.findOne({_id: id, userId})
     .then(result => {
       if (result) {
         res.json(result);
@@ -46,8 +47,8 @@ router.get('/tags/:id', (req, res, next) => {
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/tags', (req, res, next) => {
   const { name } = req.body;
-
-  const newTag = { name };
+  const userId = req.user.id;
+  const newTag = { name, userId };
 
   /***** Never trust users - validate input *****/
   if (!name) {
@@ -73,7 +74,7 @@ router.post('/tags', (req, res, next) => {
 router.put('/tags/:id', (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
-
+  const userId = req.user.id;
   /***** Never trust users - validate input *****/
   if (!name) {
     const err = new Error('Missing `name` in request body');
@@ -87,7 +88,7 @@ router.put('/tags/:id', (req, res, next) => {
     return next(err);
   }
 
-  const updateTag = { name };
+  const updateTag = { name, userId };
 
   Tag.findByIdAndUpdate(id, updateTag, { new: true })
     .then(result => {
@@ -109,7 +110,8 @@ router.put('/tags/:id', (req, res, next) => {
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/tags/:id', (req, res, next) => {
   const { id } = req.params;
-  const tagRemovePromise = Tag.findByIdAndRemove(id);
+  const userId = req.user.id;
+  const tagRemovePromise = Tag.findOneAndRemove({_id: id, userId});
   // const tagRemovePromise = Tag.remove({ _id: id }); // NOTE **underscore** _id
 
   const noteUpdatePromise = Note.updateMany(
