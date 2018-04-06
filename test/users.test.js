@@ -4,7 +4,6 @@ const app = require('../server');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
-// const jwt = require('jsonwebtoken');
 
 const { TEST_MONGODB_URI } = require('../config'); ('../config');
 
@@ -13,6 +12,8 @@ const User = require('../models/user');
 const expect = chai.expect;
 
 chai.use(chaiHttp);
+
+const createJWT = require('../utils/create-auth-token');
 
 describe('Noteful API - Users', function () {
   const username = 'exampleUser';
@@ -190,13 +191,20 @@ describe('Noteful API - Users', function () {
     });
 
     describe.only('GET', function () {
-
+      let jwt;
+      const username = 'exampleUser';
+      const password = 'examplePass';
+      const fullname = 'Example User';
+      before(function () {
+        const user = User.create({username, password, fullname});
+        jwt = createJWT(user);
+      });
       it('Should return an empty array initially', function () {
-        return chai.request(app).get('/api/users')
+        return chai.request(app).get('/api/users').set('Bearer', jwt)
           .then(res => {
             expect(res).to.have.status(200);
             expect(res.body).to.be.an('array');
-            expect(res.body).to.have.length(0);
+            expect(res.body).to.have.length(1);
           });
       });
       it('Should return an array of users', function () {
@@ -220,7 +228,7 @@ describe('Noteful API - Users', function () {
           .then(() => {return chai.request(app).post('/api/users').send(testArr[1]);})
           .then(() => {return chai.request(app).post('/api/users').send(testArr[2]);})
           .then(() => {
-            return chai.request(app).get('/api/users');
+            return chai.request(app).get('/api/users').set('Bearer', jwt);
           })
           .then((res) => {
             expect(res).to.have.status(200);
