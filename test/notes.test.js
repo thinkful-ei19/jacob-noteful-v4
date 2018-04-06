@@ -10,6 +10,11 @@ const Note = require('../models/note');
 const Folder = require('../models/folder');
 const seedNotes = require('../db/seed/notes');
 const seedFolders = require('../db/seed/folders');
+const seedUsers = require('../db/seed/users');
+const seedTags = require('../db/seed/tags');
+
+const User = require('../models/user');
+const Tag = require('../models/tag');
 
 const expect = chai.expect;
 
@@ -22,10 +27,22 @@ describe('Noteful API - Notes', function () {
   });
 
   beforeEach(function () {
-    const noteInsertPromise = Note.insertMany(seedNotes);
-    const folderInsertPromise = Folder.insertMany(seedFolders);
-    return Promise.all([noteInsertPromise, folderInsertPromise])
-      .then(() => Note.ensureIndexes());
+    // const noteInsertPromise = Note.insertMany(seedNotes);
+    // const folderInsertPromise = Folder.insertMany(seedFolders);
+    // return Promise.all([noteInsertPromise, folderInsertPromise])
+    //   .then(() => Note.ensureIndexes());
+
+    return Promise.all([
+      User.insertMany(seedUsers),
+      User.ensureIndexes(),
+      Folder.insertMany(seedFolders),
+      Folder.ensureIndexes(),
+      Tag.insertMany(seedTags),
+      Tag.ensureindexes()
+    ]).then(([users]) => {
+      user = users[0];
+      token = jwt.sign({ user }, JWT_SECRET, { subject: user.username })
+    });
   });
 
   afterEach(function () {
