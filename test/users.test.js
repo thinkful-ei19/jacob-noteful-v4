@@ -5,7 +5,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
 
-const { TEST_MONGODB_URI } = require('../config'); ('../config');
+const { TEST_MONGODB_URI } = require('../config');
 
 const User = require('../models/user');
 
@@ -38,7 +38,7 @@ describe('Noteful API - Users', function () {
     return mongoose.disconnect();
   });
 
-  describe('/api/users', function () {
+  describe.only('/api/users', function () {
     describe('POST', function () {
       it('Should create a new user', function () {
         const testUser = { username, password, fullname };
@@ -181,16 +181,20 @@ describe('Noteful API - Users', function () {
           });
       });
       it('Should trim fullname', function() {
-        const testUser = { username, fullname:' jacob ', password };
+        const testUser = { username, fullname:' Example User ', password };
         return chai.request(app).post('/api/users').send(testUser)
           .then(res => {
             expect(res).to.have.status(201);
-            expect(res.body.fullname).to.equal('jacob');
+            expect(res.body.fullname).to.equal(fullname);
+            return User.findOne({ username });
+          })
+          .then(res => {
+            expect(res.fullname).to.equal(fullname);
           });
       });
     });
 
-    describe.only('GET', function () {
+    describe('GET', function () {
       let jwt;
       const username = 'exampleUser';
       const password = 'examplePass';
