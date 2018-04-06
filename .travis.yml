@@ -1,10 +1,10 @@
 language: node_js
 node_js: node
 services: mongodb
-# deploy:
-#     provider: heroku
-#     api_key:
-#       secure: [YOUR-API-KEY]
-#     app: [YOUR-APP-NAME]
-#     on:
-#       repo: [YOUR-APP-REPO]
+ deploy:
+     provider: heroku
+     api_key:
+       secure: 6224c463-6b4a-4681-a2fd-390716ae2d77
+     app: noteful-app-v4-jacob
+     on:
+       repo: thinkful-ei19/jacob-noteful-v4
