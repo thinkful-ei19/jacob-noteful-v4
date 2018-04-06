@@ -19,9 +19,7 @@ chai.use(chaiHttp);
 
 describe.only('Noteful API - Folders', function () {
   let user, token;
-   
 
-  
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
       .then(() => mongoose.connection.db.dropDatabase());

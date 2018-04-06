@@ -18,7 +18,7 @@ chai.use(chaiHttp);
 const { JWT_SECRET } = require('../config');
 const jwt = require('jsonwebtoken');
 
-describe.only('Noteful API - Login', function () {
+describe('Noteful API - Login', function () {
   const username = 'user0';
   const fullname = 'User Zero';
   const id = '333333333333333333333300';
